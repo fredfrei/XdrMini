@@ -82,6 +82,7 @@ set_target_properties(XdrMini PROPERTIES
 install(TARGETS XdrMini
     BUNDLE DESTINATION .
     RUNTIME DESTINATION bin
+    LIBRARY DESTINATION lib
 )
 
 # XdrMini Desktop-Eintrag
