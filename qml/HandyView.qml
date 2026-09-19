@@ -402,6 +402,23 @@ ApplicationWindow {
         smallFontSize: 12
     }
 
+    // XDRMINI_HANDY_TMC_GPS_V1
+    Loader {
+        id: handyTmcLoader
+        anchors.fill: parent
+        z: 10000
+        active: false
+        source: active ? "HandyTmcView.qml" : ""
+
+        onLoaded: {
+            if (item)
+                item.closeRequested.connect(function() {
+                    handyTmcLoader.active = false
+                })
+        }
+    }
+
+
     Rectangle {
         anchors.fill: parent
         anchors.margins: 5
@@ -759,11 +776,8 @@ ApplicationWindow {
                     text: "TMC"
                     active: xdrClient.tmcActive
 
-                    onClicked: {
-                        tmcWindow.show()
-                        tmcWindow.raise()
-                        tmcWindow.requestActivate()
-                    }
+                    onClicked:
+                        handyTmcLoader.active = true
                 }
 
                 ModeButton {

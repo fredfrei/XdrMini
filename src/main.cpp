@@ -10,6 +10,7 @@
 
 #include "XdrClient.h"
 #include "ScanController.h"
+#include "LocationBridge.h"
 
 #ifdef Q_OS_ANDROID
 namespace {
@@ -68,12 +69,15 @@ int main(int argc, char *argv[])
 
     XdrClient client;
     ScanController scanController(&client);
+    LocationBridge locationBridge;
 
     QQmlApplicationEngine engine;
     engine.rootContext()->setContextProperty(
         QStringLiteral("xdrClient"), &client);
     engine.rootContext()->setContextProperty(
         QStringLiteral("scanController"), &scanController);
+    engine.rootContext()->setContextProperty(
+        QStringLiteral("locationBridge"), &locationBridge);
 
 #ifdef Q_OS_ANDROID
     engine.load(
@@ -88,3 +92,5 @@ int main(int argc, char *argv[])
 
     return app.exec();
 }
+
+// XDRMINI_HANDY_TMC_GPS_V1

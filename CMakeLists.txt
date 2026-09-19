@@ -14,6 +14,7 @@ find_package(Qt6 REQUIRED COMPONENTS
     QuickControls2
     Network
     SerialPort
+    Positioning
 )
 
 qt_standard_project_setup()
@@ -24,6 +25,8 @@ qt_add_executable(XdrMini
     src/XdrClient.h
     src/ScanController.cpp
     src/ScanController.h
+    src/LocationBridge.cpp
+    src/LocationBridge.h
     src/TmcTablesGenerated.h
 )
 
@@ -46,6 +49,12 @@ set_source_files_properties(
 )
 
 set_source_files_properties(
+    qml/HandyTmcView.qml
+    PROPERTIES
+        QT_RESOURCE_ALIAS HandyTmcView.qml
+)
+
+set_source_files_properties(
     qml/TmcWindow.qml
     PROPERTIES
         QT_RESOURCE_ALIAS TmcWindow.qml
@@ -64,6 +73,7 @@ qt_add_qml_module(XdrMini
     QML_FILES
         qml/Main.qml
         qml/HandyView.qml
+        qml/HandyTmcView.qml
         qml/TmcWindow.qml
         qml/ScanWindow.qml
 )
@@ -73,6 +83,7 @@ target_link_libraries(XdrMini PRIVATE
     Qt6::QuickControls2
     Qt6::Network
     Qt6::SerialPort
+    Qt6::Positioning
 )
 
 set_target_properties(XdrMini PROPERTIES
@@ -115,3 +126,5 @@ if(NOT ANDROID)
 
     include(CPack)
 endif()
+
+# XDRMINI_HANDY_TMC_GPS_V1

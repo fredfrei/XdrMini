@@ -63,7 +63,7 @@ jobs:
           host: linux
           target: desktop
           arch: linux_gcc_64
-          modules: qtserialport
+          modules: "qtserialport qtpositioning"
           dir: "${{ runner.temp }}"
           cache: true
           cache-key-prefix: xdrmini-qt-desktop
@@ -75,7 +75,7 @@ jobs:
           host: all_os
           target: android
           arch: android_arm64_v8a
-          modules: qtserialport
+          modules: "qtserialport qtpositioning"
           dir: "${{ runner.temp }}"
           cache: true
           cache-key-prefix: xdrmini-qt-android-arm64
