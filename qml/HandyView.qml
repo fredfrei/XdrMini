@@ -315,8 +315,10 @@ ApplicationWindow {
             anchors.centerIn: parent
             text: headerButton.symbol
             color: headerButton.symbolColor
-            font.pixelSize: 23
+            font.pixelSize: headerButton.symbol.length > 1 ? 14 : 23
             font.bold: true
+            horizontalAlignment: Text.AlignHCenter
+            verticalAlignment: Text.AlignVCenter
         }
 
         MouseArea {
@@ -449,9 +451,9 @@ ApplicationWindow {
                         }
 
                         HeaderButton {
-                            Layout.preferredWidth: 44
+                            Layout.preferredWidth: 54
                             Layout.preferredHeight: 44
-                            symbol: "⏻"
+                            symbol: "AUS"
                             symbolColor: "#d49320"
                             onClicked: window.disconnectAndQuit()
                         }
@@ -756,7 +758,7 @@ ApplicationWindow {
                 ModeButton {
                     Layout.fillWidth: true
                     Layout.fillHeight: true
-                    iconText: "⌕"
+                    iconText: "S"
 
                     text:
                         scanController.scanning
