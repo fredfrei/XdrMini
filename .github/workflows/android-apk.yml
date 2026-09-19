@@ -24,7 +24,7 @@ env:
 
 jobs:
   build-android:
-    name: XdrMini arm64 APK erstellen
+    name: XdrMini arm64 Test-APK erstellen
     runs-on: ubuntu-24.04
 
     steps:
@@ -56,7 +56,6 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y ninja-build
 
-      # Qt 6 Android braucht passende Desktop-Hostwerkzeuge.
       - name: Qt 6.8.3 Desktop Host installieren
         uses: jurplel/install-qt-action@v4
         with:
@@ -69,9 +68,6 @@ jobs:
           cache: true
           cache-key-prefix: xdrmini-qt-desktop
 
-      # WICHTIG:
-      # Seit Qt 6.7 liegen die Android-Pakete im Qt-Repository
-      # unter all_os/android, nicht mehr unter linux/android.
       - name: Qt 6.8.3 Android ARM64 installieren
         uses: jurplel/install-qt-action@v4
         with:
@@ -83,28 +79,6 @@ jobs:
           dir: "${{ runner.temp }}"
           cache: true
           cache-key-prefix: xdrmini-qt-android-arm64
-
-      - name: Pfade pruefen
-        shell: bash
-        run: |
-          QT_BASE="${RUNNER_TEMP}/Qt/${QT_VERSION}"
-          QT_HOST="${QT_BASE}/gcc_64"
-          QT_ANDROID="${QT_BASE}/android_arm64_v8a"
-          NDK="${ANDROID_SDK_ROOT}/ndk/${ANDROID_NDK_VERSION}"
-
-          echo "QT_HOST=${QT_HOST}"
-          echo "QT_ANDROID=${QT_ANDROID}"
-          echo "ANDROID_SDK_ROOT=${ANDROID_SDK_ROOT}"
-          echo "NDK=${NDK}"
-
-          test -x "${QT_ANDROID}/bin/qt-cmake"
-          test -d "${QT_HOST}"
-          test -d "${NDK}"
-
-          "${QT_ANDROID}/bin/qt-cmake" --version
-          cmake --version
-          ninja --version
-          java -version
 
       - name: XdrMini fuer Android konfigurieren
         shell: bash
@@ -120,39 +94,45 @@ jobs:
             -S . \
             -B build-android \
             -GNinja \
-            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_BUILD_TYPE=Debug \
+            -DQT_ANDROID_DEPLOYMENT_TYPE=Debug \
             -DQT_HOST_PATH="${QT_HOST}" \
             -DANDROID_SDK_ROOT="${ANDROID_SDK_ROOT}" \
             -DANDROID_NDK_ROOT="${NDK}" \
             -DANDROID_ABI=arm64-v8a \
-            -DANDROID_PLATFORM=android-26
+            -DANDROID_PLATFORM=android-28
 
-      - name: APK bauen
+      - name: Debug-APK bauen
         shell: bash
         run: |
           cmake --build build-android --target apk --parallel
 
-      - name: APK finden
+      - name: Signierte APK pruefen und einsammeln
         shell: bash
         run: |
-          echo "Gefundene APK-Dateien:"
+          echo "Alle erzeugten APK-Dateien:"
           find build-android -type f -name "*.apk" -print
 
-          APK="$(find build-android -type f -name "*.apk" | head -n 1)"
+          APK="$(find build-android -type f -name "*.apk" ! -name "*unsigned*" | head -n 1)"
 
           if [ -z "${APK}" ]; then
-            echo "Fehler: Keine APK gefunden."
+            echo "Fehler: Keine signierte APK gefunden."
             exit 1
           fi
 
+          echo "Verwendete APK: ${APK}"
+
+          APKSIGNER="${ANDROID_SDK_ROOT}/build-tools/${ANDROID_BUILD_TOOLS}/apksigner"
+          "${APKSIGNER}" verify --verbose --print-certs "${APK}"
+
           mkdir -p dist
-          cp "${APK}" dist/XdrMini-arm64-v8a.apk
-          ls -lh dist/XdrMini-arm64-v8a.apk
+          cp "${APK}" dist/XdrMini-arm64-v8a-debug.apk
+          ls -lh dist/XdrMini-arm64-v8a-debug.apk
 
       - name: APK als Artifact hochladen
         uses: actions/upload-artifact@v4
         with:
-          name: XdrMini-Android-APK
-          path: dist/XdrMini-arm64-v8a.apk
+          name: XdrMini-Android-Test-APK
+          path: dist/XdrMini-arm64-v8a-debug.apk
           if-no-files-found: error
           retention-days: 14
