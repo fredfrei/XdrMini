@@ -40,7 +40,7 @@
             android:launchMode="singleTop"
             android:screenOrientation="portrait"
             android:exported="true"
-            android:theme="@style/NormalTheme">
+            android:theme="@android:style/Theme.DeviceDefault.NoActionBar">
 
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
