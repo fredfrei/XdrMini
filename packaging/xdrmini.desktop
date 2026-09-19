@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=XdrMini
+Comment=TEF6686 FM Radio
+Exec=xdrmini
+Icon=xdrmini
+Terminal=false
+Categories=AudioVideo;Audio;
