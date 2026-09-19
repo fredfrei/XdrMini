@@ -1,11 +1,11 @@
 #include <QGuiApplication>
+#include <QCoreApplication>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 #include <QUrl>
 
 #ifdef Q_OS_ANDROID
 #include <QJniObject>
-#include <QNativeInterface>
 #endif
 
 #include "XdrClient.h"
@@ -26,7 +26,7 @@ void startAndroidForegroundService()
         "org/fredfrei/xdrmini/XdrForegroundService",
         "start",
         "(Landroid/content/Context;)V",
-        context.object());
+        context.object<jobject>());
 }
 
 void stopAndroidForegroundService()
@@ -41,7 +41,7 @@ void stopAndroidForegroundService()
         "org/fredfrei/xdrmini/XdrForegroundService",
         "stop",
         "(Landroid/content/Context;)V",
-        context.object());
+        context.object<jobject>());
 }
 
 } // namespace
