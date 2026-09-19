@@ -32,18 +32,19 @@ target_include_directories(XdrMini PRIVATE
 )
 
 # Die Dateien liegen physisch unter qml/,
-# sollen im QML-Modul XdrMini aber direkt als
-# Main und TmcWindow erscheinen.
+# sollen im QML-Modul XdrMini aber direkt erscheinen.
 set_source_files_properties(
     qml/Main.qml
     PROPERTIES
         QT_RESOURCE_ALIAS Main.qml
 )
+
 set_source_files_properties(
     qml/HandyView.qml
     PROPERTIES
         QT_RESOURCE_ALIAS HandyView.qml
 )
+
 set_source_files_properties(
     qml/TmcWindow.qml
     PROPERTIES
@@ -79,30 +80,38 @@ set_target_properties(XdrMini PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
 )
 
+if(ANDROID)
+    # AndroidManifest.xml, Java-Foreground-Service und Android-Ressourcen.
+    set_property(TARGET XdrMini PROPERTY
+        QT_ANDROID_PACKAGE_SOURCE_DIR
+        "${CMAKE_CURRENT_SOURCE_DIR}/android"
+    )
+endif()
+
 install(TARGETS XdrMini
     BUNDLE DESTINATION .
     RUNTIME DESTINATION bin
     LIBRARY DESTINATION lib
 )
 
-# XdrMini Desktop-Eintrag
-install(FILES
-    packaging/xdrmini.desktop
-    DESTINATION share/applications
-)
+# Die Linux-/Debian-Paketdateien werden auf Android nicht benötigt.
+if(NOT ANDROID)
+    install(FILES
+        packaging/xdrmini.desktop
+        DESTINATION share/applications
+    )
 
-# XdrMini Icon
-install(FILES
-    icons/xdrmini.png
-    DESTINATION share/icons/hicolor/512x512/apps
-)
+    install(FILES
+        icons/xdrmini.png
+        DESTINATION share/icons/hicolor/512x512/apps
+    )
 
-# Debian-Paket
-set(CPACK_GENERATOR "DEB")
-set(CPACK_PACKAGE_NAME "xdrmini")
-set(CPACK_PACKAGE_VERSION "0.1.0")
-set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "TEF6686 FM Radio Control")
-set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Fred")
-set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
+    set(CPACK_GENERATOR "DEB")
+    set(CPACK_PACKAGE_NAME "xdrmini")
+    set(CPACK_PACKAGE_VERSION "0.1.0")
+    set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "TEF6686 FM Radio Control")
+    set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Fred")
+    set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
 
-include(CPack)
+    include(CPack)
+endif()

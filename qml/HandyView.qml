@@ -364,6 +364,17 @@ ApplicationWindow {
                 font.family: "monospace"
                 font.pixelSize: 22
                 horizontalAlignment: Text.AlignHCenter
+
+                // Android: beim Antippen nur die Zahlentastatur anzeigen.
+                // Dezimalpunkt/Komma bleiben möglich.
+                inputMethodHints: Qt.ImhFormattedNumbersOnly
+                                  | Qt.ImhNoPredictiveText
+                maximumLength: 7
+
+                validator: RegularExpressionValidator {
+                    regularExpression: /[0-9]{0,3}([\.,][0-9]{0,3})?/
+                }
+
                 onAccepted: frequencyDialog.accept()
             }
         }
