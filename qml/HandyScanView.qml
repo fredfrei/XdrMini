@@ -236,64 +236,10 @@ Rectangle {
             }
         }
 
-        RowLayout {
-            Layout.fillWidth: true
-            Layout.preferredHeight: 48
-            spacing: 7
-
-            Rectangle {
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-                radius: 9
-                color: startTap.pressed ? "#256c39" : "#348e4d"
-                border.width: 1
-                border.color: "#4c7155"
-                opacity: xdrClient.ready && !scanController.scanning ? 1.0 : 0.45
-
-                Text {
-                    anchors.centerIn: parent
-                    text: scanController.scanning ? "SCAN LÄUFT" : "SCAN START"
-                    color: "white"
-                    font.pixelSize: 15
-                    font.bold: true
-                }
-
-                TapHandler {
-                    id: startTap
-                    enabled: xdrClient.ready && !scanController.scanning
-                    onTapped: scanController.startScan()
-                }
-            }
-
-            Rectangle {
-                Layout.preferredWidth: 86
-                Layout.fillHeight: true
-                radius: 9
-                color: stopTap.pressed ? "#8f3932" : "#b5483e"
-                border.width: 1
-                border.color: "#7b3933"
-                opacity: scanController.scanning ? 1.0 : 0.45
-
-                Text {
-                    anchors.centerIn: parent
-                    text: "STOP"
-                    color: "white"
-                    font.pixelSize: 15
-                    font.bold: true
-                }
-
-                TapHandler {
-                    id: stopTap
-                    enabled: scanController.scanning
-                    onTapped: scanController.stopScan()
-                }
-            }
-        }
-
         Rectangle {
             Layout.fillWidth: true
-            Layout.preferredHeight: 42
-            radius: 10
+            Layout.preferredHeight: 36
+            radius: 9
             color: "#ece8e0"
             border.width: 1
             border.color: "#9d978d"
@@ -479,13 +425,61 @@ Rectangle {
 
         RowLayout {
             Layout.fillWidth: true
-            Layout.preferredHeight: 48
-            spacing: 7
+            Layout.preferredHeight: 44
+            spacing: 5
 
             Rectangle {
-                Layout.preferredWidth: 118
+                Layout.fillWidth: true
                 Layout.fillHeight: true
-                radius: 9
+                radius: 8
+                color: startTap.pressed ? "#256c39" : "#348e4d"
+                border.width: 1
+                border.color: "#4c7155"
+                opacity: xdrClient.ready && !scanController.scanning ? 1.0 : 0.45
+
+                Text {
+                    anchors.centerIn: parent
+                    text: scanController.scanning ? "SCAN..." : "START"
+                    color: "white"
+                    font.pixelSize: 12
+                    font.bold: true
+                }
+
+                TapHandler {
+                    id: startTap
+                    enabled: xdrClient.ready && !scanController.scanning
+                    onTapped: scanController.startScan()
+                }
+            }
+
+            Rectangle {
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                radius: 8
+                color: stopTap.pressed ? "#8f3932" : "#b5483e"
+                border.width: 1
+                border.color: "#7b3933"
+                opacity: scanController.scanning ? 1.0 : 0.45
+
+                Text {
+                    anchors.centerIn: parent
+                    text: "STOP"
+                    color: "white"
+                    font.pixelSize: 12
+                    font.bold: true
+                }
+
+                TapHandler {
+                    id: stopTap
+                    enabled: scanController.scanning
+                    onTapped: scanController.stopScan()
+                }
+            }
+
+            Rectangle {
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                radius: 8
                 color: clearTap.pressed ? "#68635d" : "#7e7971"
                 border.width: 1
                 border.color: "#5f5b55"
@@ -494,7 +488,7 @@ Rectangle {
 
                 Text {
                     anchors.centerIn: parent
-                    text: "LISTE LÖSCHEN"
+                    text: "LÖSCHEN"
                     color: "white"
                     font.pixelSize: 11
                     font.bold: true
@@ -511,7 +505,7 @@ Rectangle {
             Rectangle {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
-                radius: 9
+                radius: 8
                 color: backTap.pressed ? "#1f1f1c" : "#33332f"
                 border.width: 1
                 border.color: "#77756f"
@@ -520,7 +514,7 @@ Rectangle {
                     anchors.centerIn: parent
                     text: "ZURÜCK"
                     color: "white"
-                    font.pixelSize: 16
+                    font.pixelSize: 12
                     font.bold: true
                 }
 
