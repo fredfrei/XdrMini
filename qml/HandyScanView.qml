@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import QtCore
 
 Rectangle {
     id: root
@@ -11,6 +12,93 @@ Rectangle {
     property color muted: "#615b53"
     property color panel: "#f0ece4"
     property color dark: "#2a2925"
+
+    property bool settingsOpen: false
+
+    property var bandwidthChoices: [
+        0, 56000, 64000, 72000, 84000, 97000, 114000, 133000,
+        151000, 168000, 184000, 200000, 217000, 236000,
+        254000, 287000, 311000
+    ]
+
+    Settings {
+        id: scanSettings
+        category: "handyScan"
+        property int minimumSignal: 20
+        property bool onlyPi: false
+        property int minimumBandwidthHz: 0
+    }
+
+    function applySavedSettings() {
+        scanController.setMinimumSignal(scanSettings.minimumSignal)
+        scanController.setMinimumBandwidthHz(scanSettings.minimumBandwidthHz)
+    }
+
+    function changeMinimumSignal(delta) {
+        if (scanController.scanning)
+            return
+
+        const v = Math.max(0, Math.min(80,
+                    scanSettings.minimumSignal + delta))
+        scanSettings.minimumSignal = v
+        scanController.setMinimumSignal(v)
+    }
+
+    function bandwidthChoiceIndex() {
+        const wanted = scanSettings.minimumBandwidthHz
+        let nearest = 0
+        let best = 999999999
+
+        for (let i = 0; i < bandwidthChoices.length; ++i) {
+            const d = Math.abs(bandwidthChoices[i] - wanted)
+            if (d < best) {
+                best = d
+                nearest = i
+            }
+        }
+        return nearest
+    }
+
+    function changeMinimumBandwidth(delta) {
+        if (scanController.scanning)
+            return
+
+        let i = bandwidthChoiceIndex() + delta
+        i = Math.max(0, Math.min(bandwidthChoices.length - 1, i))
+
+        scanSettings.minimumBandwidthHz = bandwidthChoices[i]
+        scanController.setMinimumBandwidthHz(scanSettings.minimumBandwidthHz)
+    }
+
+    function bandwidthSettingText() {
+        return scanSettings.minimumBandwidthHz > 0
+                ? Math.round(scanSettings.minimumBandwidthHz / 1000) + " kHz"
+                : "AUS"
+    }
+
+    function visibleStationModel() {
+        const source = scanController.stations
+        const out = []
+
+        for (let i = 0; i < source.length; ++i) {
+            const station = source[i]
+            const hasPi = station.pi && station.pi.length > 0
+
+            if (scanSettings.onlyPi && !hasPi)
+                continue
+
+            out.push({
+                "sourceIndex": i,
+                "station": station
+            })
+        }
+
+        return out
+    }
+
+    property var displayedStations: visibleStationModel()
+
+    Component.onCompleted: applySavedSettings()
 
     function mhz(khz) {
         return (Number(khz) / 1000.0).toFixed(3) + " MHz"
@@ -30,6 +118,17 @@ Rectangle {
         if (!scanController.scanning)
             scanController.setMinimumSignal(
                 Math.min(80, Math.round(scanController.minimumSignal) + 1))
+    }
+
+    MouseArea {
+        id: inputShield
+        anchors.fill: parent
+        acceptedButtons: Qt.AllButtons
+        preventStealing: true
+
+        onPressed: function(mouse) {
+            mouse.accepted = true
+        }
     }
 
     ColumnLayout {
@@ -71,11 +170,15 @@ Rectangle {
                 }
 
                 Text {
-                    text: scanController.stationCount + " Sender"
+                    text: root.displayedStations.length + " Sender"
                     color: "#dedbd4"
                     font.pixelSize: 13
                     font.bold: true
                 }
+            }
+
+            TapHandler {
+                onTapped: root.settingsOpen = true
             }
         }
 
@@ -141,100 +244,7 @@ Rectangle {
             }
         }
 
-        Rectangle {
-            Layout.fillWidth: true
-            Layout.preferredHeight: 70
-            radius: 13
-            color: root.panel
-            border.width: 1
-            border.color: "#817b72"
 
-            RowLayout {
-                anchors.fill: parent
-                anchors.margins: 12
-                spacing: 8
-
-                Text {
-                    text: "Mindestpegel"
-                    color: root.ink
-                    font.pixelSize: 17
-                    font.bold: true
-                }
-
-                Item { Layout.fillWidth: true }
-
-                Rectangle {
-                    Layout.preferredWidth: 42
-                    Layout.preferredHeight: 42
-                    radius: 8
-                    color: minusTap.pressed ? "#cdc7bd" : "#e7e3db"
-                    border.width: 1
-                    border.color: "#aaa399"
-                    opacity: scanController.scanning ? 0.45 : 1.0
-
-                    Text {
-                        anchors.centerIn: parent
-                        text: "−"
-                        color: root.ink
-                        font.pixelSize: 23
-                        font.bold: true
-                    }
-
-                    TapHandler {
-                        id: minusTap
-                        enabled: !scanController.scanning
-                        onTapped: root.lowerLevel()
-                    }
-                }
-
-                Rectangle {
-                    Layout.preferredWidth: 62
-                    Layout.preferredHeight: 42
-                    radius: 8
-                    color: "#faf7f1"
-                    border.width: 1
-                    border.color: "#aaa399"
-
-                    Text {
-                        anchors.centerIn: parent
-                        text: Math.round(scanController.minimumSignal)
-                        color: root.ink
-                        font.pixelSize: 20
-                        font.bold: true
-                    }
-                }
-
-                Rectangle {
-                    Layout.preferredWidth: 42
-                    Layout.preferredHeight: 42
-                    radius: 8
-                    color: plusTap.pressed ? "#cdc7bd" : "#e7e3db"
-                    border.width: 1
-                    border.color: "#aaa399"
-                    opacity: scanController.scanning ? 0.45 : 1.0
-
-                    Text {
-                        anchors.centerIn: parent
-                        text: "+"
-                        color: root.ink
-                        font.pixelSize: 21
-                        font.bold: true
-                    }
-
-                    TapHandler {
-                        id: plusTap
-                        enabled: !scanController.scanning
-                        onTapped: root.raiseLevel()
-                    }
-                }
-
-                Text {
-                    text: "dBµV"
-                    color: root.muted
-                    font.pixelSize: 14
-                }
-            }
-        }
 
 
 
@@ -252,13 +262,14 @@ Rectangle {
                 id: list
                 anchors.fill: parent
                 clip: true
-                model: scanController.stations
+                model: root.displayedStations
                 boundsBehavior: Flickable.StopAtBounds
                 ScrollBar.vertical: ScrollBar { policy: ScrollBar.AsNeeded }
 
                 delegate: Rectangle {
                     required property int index
                     required property var modelData
+                    property var station: modelData.station
 
                     width: list.width
                     height: 96
@@ -293,7 +304,7 @@ Rectangle {
 
                                 Text {
                                     anchors.horizontalCenter: parent.horizontalCenter
-                                    text: (Number(modelData.frequencyKhz) / 1000).toFixed(3)
+                                    text: (Number(station.frequencyKhz) / 1000).toFixed(3)
                                     color: root.ink
                                     font.family: "monospace"
                                     font.pixelSize: 18
@@ -318,17 +329,17 @@ Rectangle {
 
                                 Text {
                                     Layout.fillWidth: true
-                                    text: modelData.ps && modelData.ps.length > 0
-                                          ? modelData.ps : "ohne PS"
+                                    text: station.ps && station.ps.length > 0
+                                          ? station.ps : "ohne PS"
                                     color: root.ink
                                     font.pixelSize: 18
-                                    font.bold: modelData.ps && modelData.ps.length > 0
+                                    font.bold: station.ps && station.ps.length > 0
                                     elide: Text.ElideRight
                                 }
 
                                 Text {
-                                    text: modelData.pi && modelData.pi.length > 0
-                                          ? modelData.pi : "----"
+                                    text: station.pi && station.pi.length > 0
+                                          ? station.pi : "----"
                                     color: root.muted
                                     font.family: "monospace"
                                     font.pixelSize: 13
@@ -338,8 +349,8 @@ Rectangle {
 
                             Text {
                                 Layout.fillWidth: true
-                                text: modelData.pty && modelData.pty.length > 0
-                                      ? modelData.pty : "–"
+                                text: station.pty && station.pty.length > 0
+                                      ? station.pty : "–"
                                 color: root.muted
                                 font.pixelSize: 13
                                 elide: Text.ElideRight
@@ -349,14 +360,14 @@ Rectangle {
                                 Layout.fillWidth: true
 
                                 Text {
-                                    text: Number(modelData.signalLevel).toFixed(1) + " dBµV"
+                                    text: Number(station.signalLevel).toFixed(1) + " dBµV"
                                     color: root.ink
                                     font.pixelSize: 13
                                     font.bold: true
                                 }
 
                                 Text {
-                                    text: "· BW " + root.bw(modelData.bandwidthHz)
+                                    text: "· BW " + root.bw(station.bandwidthHz)
                                     color: root.muted
                                     font.pixelSize: 13
                                 }
@@ -381,7 +392,7 @@ Rectangle {
                             if (!xdrClient.ready)
                                 return
 
-                            scanController.tuneStation(index)
+                            scanController.tuneStation(modelData.sourceIndex)
                             root.closeRequested()
                         }
                     }
@@ -389,8 +400,10 @@ Rectangle {
 
                 Text {
                     anchors.centerIn: parent
-                    visible: scanController.stationCount === 0
-                    text: "Noch keine Sender in der Fundliste"
+                    visible: root.displayedStations.length === 0
+                    text: scanSettings.onlyPi
+                              ? "Keine gespeicherten Sender mit PI"
+                              : "Noch keine Sender in der Fundliste"
                     color: root.muted
                     font.pixelSize: 15
                 }
@@ -514,4 +527,248 @@ Rectangle {
             }
         }
     }
+    Rectangle {
+        id: settingsPage
+        anchors.fill: parent
+        z: 100
+        visible: root.settingsOpen
+        color: "#aaa398"
+
+        MouseArea {
+            anchors.fill: parent
+            acceptedButtons: Qt.AllButtons
+            preventStealing: true
+        }
+
+        ColumnLayout {
+            anchors.fill: parent
+            anchors.margins: 8
+            spacing: 8
+
+            Rectangle {
+                Layout.fillWidth: true
+                Layout.preferredHeight: 60
+                radius: 13
+                color: root.dark
+
+                RowLayout {
+                    anchors.fill: parent
+                    anchors.leftMargin: 16
+                    anchors.rightMargin: 16
+
+                    Text {
+                        Layout.fillWidth: true
+                        text: "SCAN-EINSTELLUNGEN"
+                        color: "white"
+                        font.pixelSize: 21
+                        font.bold: true
+                    }
+
+                    Text {
+                        text: scanController.scanning ? "SCAN LÄUFT" : ""
+                        color: "#e4c36b"
+                        font.pixelSize: 11
+                        font.bold: true
+                    }
+                }
+            }
+
+            Rectangle {
+                Layout.fillWidth: true
+                Layout.preferredHeight: 92
+                radius: 13
+                color: root.panel
+                border.width: 1
+                border.color: "#817b72"
+
+                RowLayout {
+                    anchors.fill: parent
+                    anchors.margins: 12
+                    spacing: 8
+
+                    ColumnLayout {
+                        Layout.fillWidth: true
+                        Text {
+                            text: "Mindestpegel"
+                            color: root.ink
+                            font.pixelSize: 17
+                            font.bold: true
+                        }
+                        Text {
+                            text: "Nur Signale ab diesem Pegel prüfen"
+                            color: root.muted
+                            font.pixelSize: 12
+                        }
+                    }
+
+                    Button {
+                        text: "−"
+                        enabled: !scanController.scanning
+                        onClicked: root.changeMinimumSignal(-1)
+                    }
+
+                    Rectangle {
+                        Layout.preferredWidth: 66
+                        Layout.preferredHeight: 42
+                        radius: 8
+                        color: "#faf7f1"
+                        border.width: 1
+                        border.color: "#aaa399"
+                        Text {
+                            anchors.centerIn: parent
+                            text: scanSettings.minimumSignal
+                            color: root.ink
+                            font.pixelSize: 19
+                            font.bold: true
+                        }
+                    }
+
+                    Button {
+                        text: "+"
+                        enabled: !scanController.scanning
+                        onClicked: root.changeMinimumSignal(1)
+                    }
+
+                    Text {
+                        text: "dBµV"
+                        color: root.muted
+                        font.pixelSize: 13
+                    }
+                }
+            }
+
+            Rectangle {
+                Layout.fillWidth: true
+                Layout.preferredHeight: 82
+                radius: 13
+                color: root.panel
+                border.width: 1
+                border.color: "#817b72"
+
+                RowLayout {
+                    anchors.fill: parent
+                    anchors.margins: 12
+
+                    ColumnLayout {
+                        Layout.fillWidth: true
+                        Text {
+                            text: "Nur Sender mit PI anzeigen"
+                            color: root.ink
+                            font.pixelSize: 17
+                            font.bold: true
+                        }
+                        Text {
+                            text: "Sender ohne PI bleiben gespeichert"
+                            color: root.muted
+                            font.pixelSize: 12
+                        }
+                    }
+
+                    Switch {
+                        checked: scanSettings.onlyPi
+                        onToggled: scanSettings.onlyPi = checked
+                    }
+                }
+            }
+
+            Rectangle {
+                Layout.fillWidth: true
+                Layout.preferredHeight: 102
+                radius: 13
+                color: root.panel
+                border.width: 1
+                border.color: "#817b72"
+
+                RowLayout {
+                    anchors.fill: parent
+                    anchors.margins: 12
+                    spacing: 8
+
+                    ColumnLayout {
+                        Layout.fillWidth: true
+                        Text {
+                            text: "Mindest-Bandbreite"
+                            color: root.ink
+                            font.pixelSize: 17
+                            font.bold: true
+                        }
+                        Text {
+                            Layout.fillWidth: true
+                            text: "Nur Sender ab dieser gemessenen BW speichern"
+                            color: root.muted
+                            font.pixelSize: 12
+                            wrapMode: Text.WordWrap
+                        }
+                    }
+
+                    Button {
+                        text: "−"
+                        enabled: !scanController.scanning
+                        onClicked: root.changeMinimumBandwidth(-1)
+                    }
+
+                    Rectangle {
+                        Layout.preferredWidth: 88
+                        Layout.preferredHeight: 42
+                        radius: 8
+                        color: "#faf7f1"
+                        border.width: 1
+                        border.color: "#aaa399"
+                        Text {
+                            anchors.centerIn: parent
+                            text: root.bandwidthSettingText()
+                            color: root.ink
+                            font.pixelSize: 15
+                            font.bold: true
+                        }
+                    }
+
+                    Button {
+                        text: "+"
+                        enabled: !scanController.scanning
+                        onClicked: root.changeMinimumBandwidth(1)
+                    }
+                }
+            }
+
+            Rectangle {
+                Layout.fillWidth: true
+                Layout.preferredHeight: 90
+                radius: 13
+                color: "#ece8e0"
+                border.width: 1
+                border.color: "#9d978d"
+
+                Text {
+                    anchors.fill: parent
+                    anchors.margins: 12
+                    text: "Speichern: Pegel ≥ "
+                          + scanSettings.minimumSignal + " dBµV"
+                          + (scanSettings.minimumBandwidthHz > 0
+                             ? " · BW ≥ " + root.bandwidthSettingText()
+                             : " · BW-Filter AUS")
+                          + "\nAnzeige: "
+                          + (scanSettings.onlyPi
+                             ? "nur Sender mit PI"
+                             : "alle gespeicherten Sender")
+                    color: root.muted
+                    font.pixelSize: 13
+                    wrapMode: Text.WordWrap
+                    verticalAlignment: Text.AlignVCenter
+                }
+            }
+
+            Item { Layout.fillHeight: true }
+
+            Button {
+                Layout.fillWidth: true
+                Layout.preferredHeight: 48
+                text: "FERTIG"
+                font.pixelSize: 16
+                font.bold: true
+                onClicked: root.settingsOpen = false
+            }
+        }
+    }
+
 }

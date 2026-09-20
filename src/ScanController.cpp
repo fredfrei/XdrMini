@@ -870,3 +870,5 @@ void ScanController::saveStations() const
         QJsonDocument(array).toJson(QJsonDocument::Indented));
     file.commit();
 }
+
+// XDRMINI_SCAN_MIN_BW_V1

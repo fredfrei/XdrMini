@@ -158,3 +158,5 @@ private:
 
     QVector<Station> stations_;
 };
+
+// XDRMINI_SCAN_MIN_BW_V1
