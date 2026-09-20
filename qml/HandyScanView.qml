@@ -575,64 +575,110 @@ Rectangle {
 
             Rectangle {
                 Layout.fillWidth: true
-                Layout.preferredHeight: 92
+                Layout.preferredHeight: 116
                 radius: 13
                 color: root.panel
                 border.width: 1
                 border.color: "#817b72"
 
-                RowLayout {
+                ColumnLayout {
                     anchors.fill: parent
                     anchors.margins: 12
-                    spacing: 8
+                    spacing: 7
 
-                    ColumnLayout {
-                        Layout.fillWidth: true
-                        Text {
-                            text: "Mindestpegel"
-                            color: root.ink
-                            font.pixelSize: 17
-                            font.bold: true
-                        }
-                        Text {
-                            text: "Nur Signale ab diesem Pegel prüfen"
-                            color: root.muted
-                            font.pixelSize: 12
-                        }
-                    }
-
-                    Button {
-                        text: "−"
-                        enabled: !scanController.scanning
-                        onClicked: root.changeMinimumSignal(-1)
-                    }
-
-                    Rectangle {
-                        Layout.preferredWidth: 66
-                        Layout.preferredHeight: 42
-                        radius: 8
-                        color: "#faf7f1"
-                        border.width: 1
-                        border.color: "#aaa399"
-                        Text {
-                            anchors.centerIn: parent
-                            text: scanSettings.minimumSignal
-                            color: root.ink
-                            font.pixelSize: 19
-                            font.bold: true
-                        }
-                    }
-
-                    Button {
-                        text: "+"
-                        enabled: !scanController.scanning
-                        onClicked: root.changeMinimumSignal(1)
+                    Text {
+                        text: "Mindestpegel"
+                        color: root.ink
+                        font.pixelSize: 17
+                        font.bold: true
                     }
 
                     Text {
-                        text: "dBµV"
+                        text: "Nur Signale ab diesem Pegel prüfen"
                         color: root.muted
-                        font.pixelSize: 13
+                        font.pixelSize: 12
+                    }
+
+                    RowLayout {
+                        Layout.fillWidth: true
+                        spacing: 8
+
+                        Item { Layout.fillWidth: true }
+
+                        Rectangle {
+                            Layout.preferredWidth: 44
+                            Layout.preferredHeight: 40
+                            radius: 8
+                            color: minMinusTap.pressed ? "#c8c3ba" : "#e3dfd7"
+                            border.width: 1
+                            border.color: "#aaa399"
+                            opacity: scanController.scanning ? 0.45 : 1.0
+
+                            Text {
+                                anchors.centerIn: parent
+                                text: "−"
+                                color: root.ink
+                                font.pixelSize: 22
+                                font.bold: true
+                            }
+
+                            TapHandler {
+                                id: minMinusTap
+                                enabled: !scanController.scanning
+                                onTapped: root.changeMinimumSignal(-1)
+                            }
+                        }
+
+                        Rectangle {
+                            Layout.preferredWidth: 68
+                            Layout.preferredHeight: 40
+                            radius: 8
+                            color: "#faf7f1"
+                            border.width: 1
+                            border.color: "#aaa399"
+
+                            Text {
+                                anchors.centerIn: parent
+                                text: scanSettings.minimumSignal
+                                color: root.ink
+                                font.pixelSize: 18
+                                font.bold: true
+                            }
+                        }
+
+                        Text {
+                            Layout.preferredWidth: 42
+                            text: "dBµV"
+                            color: root.muted
+                            font.pixelSize: 13
+                            horizontalAlignment: Text.AlignHCenter
+                        }
+
+                        Rectangle {
+                            Layout.preferredWidth: 44
+                            Layout.preferredHeight: 40
+                            radius: 8
+                            color: minPlusTap.pressed ? "#c8c3ba" : "#e3dfd7"
+                            border.width: 1
+                            border.color: "#aaa399"
+                            opacity: scanController.scanning ? 0.45 : 1.0
+
+                            Text {
+                                anchors.centerIn: parent
+                                text: "+"
+                                color: root.ink
+                                font.pixelSize: 20
+                                font.bold: true
+                            }
+
+                            TapHandler {
+                                id: minPlusTap
+                                enabled: !scanController.scanning
+                                onTapped: root.changeMinimumSignal(1)
+                            }
+                        }
+
+                        Item { Layout.fillWidth: true }
                     }
                 }
             }
@@ -651,12 +697,14 @@ Rectangle {
 
                     ColumnLayout {
                         Layout.fillWidth: true
+
                         Text {
                             text: "Nur Sender mit PI anzeigen"
                             color: root.ink
                             font.pixelSize: 17
                             font.bold: true
                         }
+
                         Text {
                             text: "Sender ohne PI bleiben gespeichert"
                             color: root.muted
@@ -673,60 +721,102 @@ Rectangle {
 
             Rectangle {
                 Layout.fillWidth: true
-                Layout.preferredHeight: 102
+                Layout.preferredHeight: 120
                 radius: 13
                 color: root.panel
                 border.width: 1
                 border.color: "#817b72"
 
-                RowLayout {
+                ColumnLayout {
                     anchors.fill: parent
                     anchors.margins: 12
-                    spacing: 8
+                    spacing: 7
 
-                    ColumnLayout {
+                    Text {
+                        text: "Mindest-Bandbreite"
+                        color: root.ink
+                        font.pixelSize: 17
+                        font.bold: true
+                    }
+
+                    Text {
+                        text: "Nur Sender ab dieser gemessenen BW speichern"
+                        color: root.muted
+                        font.pixelSize: 12
+                    }
+
+                    RowLayout {
                         Layout.fillWidth: true
-                        Text {
-                            text: "Mindest-Bandbreite"
-                            color: root.ink
-                            font.pixelSize: 17
-                            font.bold: true
-                        }
-                        Text {
-                            Layout.fillWidth: true
-                            text: "Nur Sender ab dieser gemessenen BW speichern"
-                            color: root.muted
-                            font.pixelSize: 12
-                            wrapMode: Text.WordWrap
-                        }
-                    }
+                        spacing: 8
 
-                    Button {
-                        text: "−"
-                        enabled: !scanController.scanning
-                        onClicked: root.changeMinimumBandwidth(-1)
-                    }
+                        Item { Layout.fillWidth: true }
 
-                    Rectangle {
-                        Layout.preferredWidth: 88
-                        Layout.preferredHeight: 42
-                        radius: 8
-                        color: "#faf7f1"
-                        border.width: 1
-                        border.color: "#aaa399"
-                        Text {
-                            anchors.centerIn: parent
-                            text: root.bandwidthSettingText()
-                            color: root.ink
-                            font.pixelSize: 15
-                            font.bold: true
+                        Rectangle {
+                            Layout.preferredWidth: 44
+                            Layout.preferredHeight: 40
+                            radius: 8
+                            color: bwMinusTap.pressed ? "#c8c3ba" : "#e3dfd7"
+                            border.width: 1
+                            border.color: "#aaa399"
+                            opacity: scanController.scanning ? 0.45 : 1.0
+
+                            Text {
+                                anchors.centerIn: parent
+                                text: "−"
+                                color: root.ink
+                                font.pixelSize: 22
+                                font.bold: true
+                            }
+
+                            TapHandler {
+                                id: bwMinusTap
+                                enabled: !scanController.scanning
+                                onTapped: root.changeMinimumBandwidth(-1)
+                            }
                         }
-                    }
 
-                    Button {
-                        text: "+"
-                        enabled: !scanController.scanning
-                        onClicked: root.changeMinimumBandwidth(1)
+                        Rectangle {
+                            Layout.preferredWidth: 92
+                            Layout.preferredHeight: 40
+                            radius: 8
+                            color: "#faf7f1"
+                            border.width: 1
+                            border.color: "#aaa399"
+
+                            Text {
+                                anchors.centerIn: parent
+                                text: root.bandwidthSettingText()
+                                color: root.ink
+                                font.pixelSize: 15
+                                font.bold: true
+                            }
+                        }
+
+                        Rectangle {
+                            Layout.preferredWidth: 44
+                            Layout.preferredHeight: 40
+                            radius: 8
+                            color: bwPlusTap.pressed ? "#c8c3ba" : "#e3dfd7"
+                            border.width: 1
+                            border.color: "#aaa399"
+                            opacity: scanController.scanning ? 0.45 : 1.0
+
+                            Text {
+                                anchors.centerIn: parent
+                                text: "+"
+                                color: root.ink
+                                font.pixelSize: 20
+                                font.bold: true
+                            }
+
+                            TapHandler {
+                                id: bwPlusTap
+                                enabled: !scanController.scanning
+                                onTapped: root.changeMinimumBandwidth(1)
+                            }
+                        }
+
+                        Item { Layout.fillWidth: true }
                     }
                 }
             }
