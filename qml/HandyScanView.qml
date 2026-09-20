@@ -81,7 +81,7 @@ Rectangle {
 
         Rectangle {
             Layout.fillWidth: true
-            Layout.preferredHeight: 120
+            Layout.preferredHeight: 106
             radius: 13
             color: root.panel
             border.width: 1
@@ -236,38 +236,12 @@ Rectangle {
             }
         }
 
-        Rectangle {
-            Layout.fillWidth: true
-            Layout.preferredHeight: 36
-            radius: 9
-            color: "#ece8e0"
-            border.width: 1
-            border.color: "#9d978d"
 
-            RowLayout {
-                anchors.fill: parent
-                anchors.leftMargin: 12
-                anchors.rightMargin: 12
-
-                Text {
-                    Layout.fillWidth: true
-                    text: scanController.stationCount + " Sender gespeichert"
-                    color: root.muted
-                    font.pixelSize: 14
-                }
-
-                Text {
-                    text: scanController.newStationsThisScan + " neu"
-                    color: scanController.newStationsThisScan > 0 ? "#218b3a" : root.muted
-                    font.pixelSize: 14
-                    font.bold: true
-                }
-            }
-        }
 
         Rectangle {
             Layout.fillWidth: true
             Layout.fillHeight: true
+            Layout.minimumHeight: 180
             radius: 13
             color: "#efebe3"
             border.width: 1
@@ -425,12 +399,18 @@ Rectangle {
 
         RowLayout {
             Layout.fillWidth: true
-            Layout.preferredHeight: 44
+            Layout.fillHeight: false
+            Layout.minimumHeight: 42
+            Layout.preferredHeight: 42
+            Layout.maximumHeight: 42
             spacing: 5
 
             Rectangle {
                 Layout.fillWidth: true
-                Layout.fillHeight: true
+                Layout.fillHeight: false
+                Layout.minimumHeight: 40
+                Layout.preferredHeight: 40
+                Layout.maximumHeight: 40
                 radius: 8
                 color: startTap.pressed ? "#256c39" : "#348e4d"
                 border.width: 1
@@ -454,7 +434,10 @@ Rectangle {
 
             Rectangle {
                 Layout.fillWidth: true
-                Layout.fillHeight: true
+                Layout.fillHeight: false
+                Layout.minimumHeight: 40
+                Layout.preferredHeight: 40
+                Layout.maximumHeight: 40
                 radius: 8
                 color: stopTap.pressed ? "#8f3932" : "#b5483e"
                 border.width: 1
@@ -478,7 +461,10 @@ Rectangle {
 
             Rectangle {
                 Layout.fillWidth: true
-                Layout.fillHeight: true
+                Layout.fillHeight: false
+                Layout.minimumHeight: 40
+                Layout.preferredHeight: 40
+                Layout.maximumHeight: 40
                 radius: 8
                 color: clearTap.pressed ? "#68635d" : "#7e7971"
                 border.width: 1
@@ -504,7 +490,10 @@ Rectangle {
 
             Rectangle {
                 Layout.fillWidth: true
-                Layout.fillHeight: true
+                Layout.fillHeight: false
+                Layout.minimumHeight: 40
+                Layout.preferredHeight: 40
+                Layout.maximumHeight: 40
                 radius: 8
                 color: backTap.pressed ? "#1f1f1c" : "#33332f"
                 border.width: 1
