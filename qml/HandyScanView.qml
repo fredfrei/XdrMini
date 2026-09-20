@@ -278,7 +278,7 @@ Rectangle {
 
                     width: list.width
                     height: 96
-                    color: mouse.pressed
+                    color: stationTap.pressed
                            ? "#d7d1c7"
                            : (index % 2 === 0 ? "#f4f1ea" : "#ebe7df")
 
@@ -389,11 +389,14 @@ Rectangle {
                         }
                     }
 
-                    MouseArea {
-                        id: mouse
-                        anchors.fill: parent
-                        enabled: !scanController.scanning && xdrClient.ready
-                        onClicked: {
+                    TapHandler {
+                        id: stationTap
+                        enabled: !scanController.scanning
+
+                        onTapped: {
+                            if (!xdrClient.ready)
+                                return
+
                             scanController.tuneStation(index)
                             root.closeRequested()
                         }
