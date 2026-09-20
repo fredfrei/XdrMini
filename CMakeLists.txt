@@ -61,6 +61,12 @@ set_source_files_properties(
 )
 
 set_source_files_properties(
+    qml/HandyScanView.qml
+    PROPERTIES
+        QT_RESOURCE_ALIAS HandyScanView.qml
+)
+
+set_source_files_properties(
     qml/ScanWindow.qml
     PROPERTIES
         QT_RESOURCE_ALIAS ScanWindow.qml
@@ -73,6 +79,7 @@ qt_add_qml_module(XdrMini
     QML_FILES
         qml/Main.qml
         qml/HandyView.qml
+        qml/HandyScanView.qml
         qml/HandyTmcView.qml
         qml/TmcWindow.qml
         qml/ScanWindow.qml
@@ -128,3 +135,5 @@ if(NOT ANDROID)
 endif()
 
 # XDRMINI_HANDY_TMC_GPS_V1
+
+# XDRMINI_HANDY_SCAN_V1

@@ -391,6 +391,23 @@ ApplicationWindow {
         mutedInk: window.mutedInk
     }
 
+    // XDRMINI_HANDY_SCAN_V1
+    Loader {
+        id: handyScanLoader
+        anchors.fill: parent
+        z: 10001
+        active: false
+        source: active ? "HandyScanView.qml" : ""
+
+        onLoaded: {
+            if (item)
+                item.closeRequested.connect(function() {
+                    handyScanLoader.active = false
+                })
+        }
+    }
+
+
     TmcWindow {
         id: tmcWindow
         client: xdrClient
@@ -792,11 +809,8 @@ ApplicationWindow {
 
                     active: scanController.scanning
 
-                    onClicked: {
-                        scanWindow.show()
-                        scanWindow.raise()
-                        scanWindow.requestActivate()
-                    }
+                    onClicked:
+                        handyScanLoader.active = true
                 }
             }
 
